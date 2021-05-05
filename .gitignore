@@ -1,4 +1,6 @@
 lib/emoji.js
 lib/test.js
 
+node_modules
+
 .env
