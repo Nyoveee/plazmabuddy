@@ -15,6 +15,7 @@ module.exports = {
             { name: '!link', value: 'Helps to verify new users. Only usable in #verify-here.'},
             { name: '!pass', value: 'Guide for account recovery.'},
             { name: '!invite', value: 'Get server invite link.'},
+            { name: 'Source code', value: 'https://github.com/Nyoveee/plazmabuddy'},
         )
         .setTimestamp()
         .setFooter('Consider supporting PB2 today!')
