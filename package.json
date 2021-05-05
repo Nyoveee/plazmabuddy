@@ -1,0 +1,21 @@
+{
+  "name": "plazmabuddy",
+  "version": "1.0.0",
+  "description": "A bot to be used for PBC discord server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nyove",
+  "license": "ISC",
+  "dependencies": {
+    "console-stamp": "^3.0.2",
+    "discord.js": "^12.5.3",
+    "dotenv": "^8.2.0",
+    "emoji-regex": "^9.2.2",
+    "he": "^1.2.0",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^2.6.1",
+    "xml2js": "^0.4.23"
+  }
+}
