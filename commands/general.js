@@ -1,8 +1,7 @@
 const listOfSentence = [
     'Want to support PB2? You can now donate money to keep the PB2 servers running by going to https://www.plazmaburst2.com/?a=&s=21',
     'Caught anyone breaking the rules? Please take a screenshot and send it to a staff member!',
-    'Want to interact with the community? Participate in the forums and join the Plazma Burst Community Discord Server!',
-    'Need assistance? Raise a support ticket at https://www.plazmaburst2.com/support for immediate response!',
+    'Want to interact with the community? Participate in the forums!',
     'You can now show your support to Eric Gurt by subscribing to his patreon at https://www.patreon.com/Eric_Gurt',
     'Have any art you want to showcase? Post in the forums at https://www.plazmaburst2.com/forum/index.php',
 ]

@@ -7,7 +7,7 @@ module.exports = {
             const ping = m.createdTimestamp - message.createdTimestamp;
             m.edit(`Pong! \`${ping}ms\``).catch(error => {
                 message.channel.send("Insufficient permission to edit message to include ping latency.")
-                console.error("Insufficient permission to edit message to include ping latency.")
+                log.error("Insufficient permission to edit message to include ping latency.", message)
             })
         })
     }

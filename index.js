@@ -8,10 +8,11 @@ const client = new Discord.Client()
 const fs = require('fs');
 client.commands = new Discord.Collection()
 const cron = require('node-cron');
-
+const log = require('./lib/log.js')
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 const poll = require('./passive/poll.js')
-const feed = require('./passive/feed.js')
+const feed = require('./passive/feed.js');
+const pass = require('./commands/pass.js');
 
 const pollChannel = '663484449576714252'
 
@@ -30,7 +31,12 @@ for (const file of commandFiles) {
 const prefix = '!'
 
 client.once('ready', () => {
-    console.log('Bot is now running.')
+    log.log('Bot is now running.', client)
+    //client.channels.cache.get(process.env.logChannelID).send('Bot is now running.')
+})
+
+client.on('error', (err) => {
+    log.error(`Failed to start bot. Error:\n${err}`)
 })
 
 client.on('message', (message) => {
@@ -38,8 +44,13 @@ client.on('message', (message) => {
         return
     }
 
-    if(message.channel.id === pollChannel){
+    if(message.channel.id === process.env.pollChannel){
         poll.execute(message)
+        return
+    }
+
+    if((message.channel.id === process.env.supportChannel1 || message.channel.id === process.env.supportChannel2) && message.content.toLowerCase().includes('password')){
+        pass.execute(message)
         return
     }
 

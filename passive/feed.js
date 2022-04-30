@@ -3,19 +3,19 @@ require('dotenv').config()
 const fetch = require('node-fetch');
 const RSS_URL = 'https://www.plazmaburst2.com/forum/feed.php';
 //const RSS_URL = ' www.google.com:81'
-const feedChannel = '335859989258174464'
+const feedChannel = process.env.feedChannel
 const Discord = require('discord.js')
 const apiKey = process.env.API_KEY
 const he = require('he');
 const quoteFac = require('../lib/quote.js')
-
+const log = require('../lib/log.js')
 const parseString = require('xml2js').parseString;
 let memoryFeed = ''
 let prevFeed = ''
 
 const regexFilter = /.+?• ?(.+)/
 const contentRegexFilter = /((?:.|\s)+)<p>Statistics: Posted by <a/
-const emojiRegexFilter = /<img src="https:\/\/www.plazmaburst2.com\/forum\/images\/smilies\/kolobok\/([a-z]+\.gif)"/g
+const emojiRegexFilter = /<img src="http:\/\/www\.plazmaburst2\.com\/forum\/images\/smilies\/kolobok\/(.+?)" alt=".+?" title=".+?" \/>/g
 const bbcodeFilter = /\<\/?(?:strong|!-- m --|a|code|dd|dl(?: class="codebox")?|dt|div|span(?: style=".*?")?)\>/g
 const imgRegex = /<a class="postlink" href=".+?" >/g
 
@@ -66,17 +66,17 @@ module.exports = {
         .then(xml => {
             parseString(xml, (err, result) => {
                 if(err){
-                    console.error('\x1b[33m%s\x1b[0m',"Error parsing feeds into an xml.")
+                    log.error("Error parsing feeds into an xml.", client)
                     return
                 }
 
                 //Latest Feed
                 let latestEntry = result.feed.entry[0]
-                //We use published time to check whether this feed is a new one or not
+                //We use published time to check whether this feed is a new one
                 let latestEntryTime = latestEntry.published[0]
 
                 //Latest feed is the same as the one in memory? If it is, skip this step.
-                //MemoryFeed starts off as ''
+                //MemoryFeed is initialised as '' in the beginning.
                 if(memoryFeed !== '' && memoryFeed === latestEntryTime){
                     return
                 }
@@ -102,7 +102,7 @@ module.exports = {
                 let category = latestEntry.category[0].$.label
                 let content = latestEntry.content[0]._.match(contentRegexFilter)[1]
 
-                console.log(`Successfully retrieved a feed from ${author}`)
+                log.log(`Successfully retrieved a feed from ${author}.`, client)
 
                 //content = testString
                 // ------ Cleaning content ------
@@ -120,7 +120,8 @@ module.exports = {
                 //3.2 Replace img link with unicode emoji
                 if(emojiList.length !== 0){
                     for(const emojiLink of emojiList){
-                        content = content.replace(/<img src="https:\/\/www.plazmaburst2.com\/forum\/images\/smilies\/kolobok\/[a-z]+\.gif" alt=".+?" title=".+?" \/>/, emojiMap[emojiLink])
+                        let emojiRegex = new RegExp(`<img src="http:\/\/www\.plazmaburst2\.com\/forum\/images\/smilies\/kolobok\/${emojiLink}" alt=".+?" title=".+?" \/>`)
+                        content = content.replace(emojiRegex, emojiMap[emojiLink])
                     }
                 }
 
@@ -179,13 +180,13 @@ module.exports = {
                 })
                 .catch(err => {
                     //API failed to respond.
-                    console.log('\x1b[33m%s\x1b[0m', 'PB2 API failed to respond properly. Error message:\n' + err)
+                    log.error(`PB2 API failed to respond [1]. Error message:\n${err}`, client)
                 })
             })
         })
         .catch(err => {
             //Feeds failed to respond.
-            console.log('\x1b[33m%s\x1b[0m', 'PB2 Feeds failed to respond properly. Error message:\n' + err)
+            log.error(`PB2 Feeds failed to respond [2]. Error message:\n${err}`, client)
         })
     }
 }

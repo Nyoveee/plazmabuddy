@@ -3,8 +3,8 @@ require('dotenv').config()
 const Discord = require('discord.js')
 const fetch = require('node-fetch');
 const apiKey = process.env.API_KEY
-
-const verifyChannel = '501506791381663754'
+const verifyChannel = process.env.verifyChannel
+const log = require('../lib/log.js')
 
 const verifyUser = (message, login) => {
     //If discord tag is the same as login, add a . for nickname.
@@ -21,30 +21,42 @@ const verifyUser = (message, login) => {
 
     if(newUserRole === undefined || verifiedRole === undefined){
         message.channel.send('Failed to retrieve role names. Verification process halted.')
-        console.error('\x1b[33m%s\x1b[0m','Failed to retrieve role names during verification process. Role names may have changed?')
+        log.error('Failed to retrieve role names during verification process. Role names may have changed?', message)
         return
     }
 
-    user.roles.add(verifiedRole).catch(() => {
+    user.roles.add(verifiedRole)
+    .then((updatedMember) => {
+        if(!updatedMember.roles.cache.has(process.env.verifiedID))
+        {
+            log.error('Bot failed to add Verified role.')
+            message.channel.send('<@94308565455474688> Please add Verified role.', message)
+        }
+    })
+    .catch(() => {
         message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
-        console.error('\x1b[33m%s\x1b[0m','Bot has invalid permissions to add Verified role.')
+        log.error('Bot has invalid permissions to add Verified role.', message)
     });
 
-    user.roles.remove(newUserRole).catch(() => {
+    user.roles.remove(newUserRole)
+    .then((updatedMember) => {
+        if(updatedMember.roles.cache.has(process.env.newUserID))
+        {
+            log.error('Bot failed to add New User role.', message)
+        }
+    })
+    .catch(() => {
         message.channel.send('Bot has invalid permissions to remove New User role. Please allocate the proper permissions for the bot.')
-        console.error('\x1b[33m%s\x1b[0m','Bot has invalid permissions to add New User role.')
+        log.error('Bot has invalid permissions to add New User role.', message)
     });
 
-    console.log("Roles successfully added.")
-    //-----
-    
     user.setNickname(login).catch(error => {
         message.channel.send('Bot has invalid permissions to change nickname. Please allocate the proper permissions for the bot.')
-        console.error('\x1b[33m%s\x1b[0m','Bot has invalid permissions to change nickname.')
+        log.error('Bot has invalid permissions to change nickname.', message)
     })
 
     message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
-    console.log(`Successfully verified user ${login}.`)
+    log.log(`Successfully verified user ${message.member.user.tag} as ${login}`, message)
 }
 
 const missingLogin = (message, command) => {
@@ -163,7 +175,7 @@ module.exports = {
             
         })
         .catch(error => {
-            console.error('\x1b[33m%s\x1b[0m',`Error when verifying user. ${error}`)
+            log.error(`Error when verifying user. ${error}`, message)
         })
     }
 }
