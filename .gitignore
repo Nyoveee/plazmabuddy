@@ -5,3 +5,7 @@ node_modules
 
 .env
 todo.txt
+
+npm-debug.log
+.DS_Store
+/*.env
