@@ -61,7 +61,7 @@ const verifyUser = (message, login) => {
 
 const missingLogin = (message, command) => {
     const missingLoginEmbed = new Discord.MessageEmbed()
-    .setColor('#FFFF00')
+    .setColor(process.env.embedColor)
     .setTitle('Missing Login')
     .setDescription(`Please include login after the command.\nExample: \`!${command} Your Login Here\`\n\nYou can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8.`)
     .setImage('https://i.imgur.com/gPJgTt8.png')
@@ -71,7 +71,7 @@ const missingLogin = (message, command) => {
 
 const invalidLogin = (message, command) => {
     const invalidLoginEmbed = new Discord.MessageEmbed()
-    .setColor('#FFFF00')
+    .setColor(process.env.embedColor)
     .setTitle('Invalid Login')
     .setDescription(`You can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8. \n\nExample: \`!${command} Your Login Here\``)
     .setImage('https://i.imgur.com/gPJgTt8.png')
@@ -94,7 +94,7 @@ const missingDiscordTag = (message, discordTag, profileTag) => {
     }
 
     const missingTagEmbed = new Discord.MessageEmbed()
-    .setColor('#FFFF00')
+    .setColor(process.env.embedColor)
     .setTitle(title)
     .setDescription(description)
     .addFields(
@@ -108,7 +108,7 @@ const missingDiscordTag = (message, discordTag, profileTag) => {
 
 const failedReq = (message) => {
     const veriDenyEmbed = new Discord.MessageEmbed()
-    .setColor('#FFFF00')
+    .setColor(process.env.embedColor)
     .setTitle('Verification requirements not met.')
     .setDescription('To be verified, you need to meet at least one of the criteria stated below.')
     .addFields(

@@ -49,7 +49,7 @@ const sendFeedEmbed = (client, color, imgLink, title, postLink, content, categor
     // )
     .setTimestamp()
     .setAuthor({name: author, iconURL: imgLink})
-    .setFooter({text: 'Support Eric at patreon today!\nhttps://www.patreon.com/Eric_Gurt'})
+    .setFooter({text: process.env.embedFooter})
 
     client.channels.cache.get(feedChannel).send({embeds: [feedEmbed]})
     .then(async m => {

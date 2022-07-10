@@ -1,11 +1,12 @@
 const Discord = require('discord.js')
+require('dotenv').config()
 
 module.exports = {
     name: 'help',
     description: 'Shows a list of command',
     execute(message){
         const helpEmbed = new Discord.MessageEmbed()
-        .setColor('#FFFF00')
+        .setColor(process.env.embedColor)
         .setTitle('General Information')
         .setDescription('The PlazmaBuddy bot helps the staff team to automate certain tasks such as verification, emoji reactions, etc..\n\nHere are the list of commands.')
         .addFields(
@@ -18,8 +19,8 @@ module.exports = {
             { name: 'Source code', value: 'https://github.com/Nyoveee/plazmabuddy'},
         )
         .setTimestamp()
-        .setFooter({text: 'Support Eric at patreon today!\nhttps://www.patreon.com/Eric_Gurt'})
-        .setThumbnail('https://i.imgur.com/PBuRnNa.png')
+        .setFooter({text: process.env.embedFooter})
+        .setThumbnail('https://i.imgur.com/rCvjGc2.png')
 
         message.channel.send({embeds: [helpEmbed]})
     }

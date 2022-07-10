@@ -15,9 +15,7 @@ const log = require('./lib/log.js')
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 const poll = require('./passive/poll.js')
 const feed = require('./passive/feed.js');
-const supportFeed = require('./passive/supportFeed.js');
-const pass = require('./commands/pass.js');
-const pollChannel = '663484449576714252'
+//const supportFeed = require('./passive/supportFeed.js');
 
 if(!fs.existsSync('./.env')){
     console.error('Missing env file at root of directory. Bot is unable to run.')
