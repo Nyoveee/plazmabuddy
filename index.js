@@ -57,11 +57,6 @@ client.on('messageCreate', (message) => {
         return
     }
 
-    if((message.channel.id === process.env.supportChannel1 || message.channel.id === process.env.supportChannel2) && message.content.toLowerCase().includes('password')){
-        pass.execute(message)
-        return
-    }
-
     if(!message.content.startsWith(prefix)){
         return
     }
