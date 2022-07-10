@@ -6,7 +6,8 @@ const apiKey = process.env.API_KEY
 const verifyChannel = process.env.verifyChannel
 const log = require('../lib/log.js')
 
-const verifyUser = (message, login) => {
+//isBanned is boolean
+const verifyUser = (message, login, isBanned) => {
     //If discord tag is the same as login, add a . for nickname.
     if(message.author.username === login){
         login += '.'
@@ -18,45 +19,50 @@ const verifyUser = (message, login) => {
     //-----
     const newUserRole = message.guild.roles.cache.find(role => role.name === 'New User');
     const verifiedRole = message.guild.roles.cache.find(role => role.name === 'Verified');
+    const bannedRole = message.guild.roles.cache.find(role => role.name === 'Banned');
 
-    if(newUserRole === undefined || verifiedRole === undefined){
+    if(newUserRole === undefined || verifiedRole === undefined || bannedRole === undefined){
         message.channel.send('Failed to retrieve role names. Verification process halted.')
         log.error('Failed to retrieve role names during verification process. Role names may have changed?', message)
         return
     }
 
-    user.roles.add(verifiedRole)
-    .then((updatedMember) => {
-        if(!updatedMember.roles.cache.has(process.env.verifiedID))
-        {
-            log.error('Bot failed to add Verified role.')
-            message.channel.send('<@94308565455474688> Please add Verified role.', message)
-        }
-    })
-    .catch(() => {
-        message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
-        log.error('Bot has invalid permissions to add Verified role.', message)
-    });
+    if(!isBanned){
+        user.roles.add(verifiedRole)
+        .catch(() => {
+            message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
+            log.error('Bot has invalid permissions to add Verified role.', message)
+        });
 
-    user.roles.remove(newUserRole)
-    .then((updatedMember) => {
-        if(updatedMember.roles.cache.has(process.env.newUserID))
-        {
-            log.error('Bot failed to add New User role.', message)
-        }
-    })
-    .catch(() => {
-        message.channel.send('Bot has invalid permissions to remove New User role. Please allocate the proper permissions for the bot.')
-        log.error('Bot has invalid permissions to add New User role.', message)
-    });
+        user.roles.remove(newUserRole)
+        .catch(() => {
+            message.channel.send('Bot has invalid permissions to remove New User role. Please allocate the proper permissions for the bot.')
+            log.error('Bot has invalid permissions to add New User role.', message)
+        });
 
+        message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
+        log.log(`Successfully verified user ${message.member.user.tag} as ${login}`, message)
+    }
+    else{
+        const bannedEmbed = new Discord.MessageEmbed()
+        .setTitle('Verification Denied')
+        .setColor(process.env.embedColor)
+        .setDescription(`Your verification has been denied since \`${login}\` is currently banned on the website.\nKindly create a ticket on <#995018165593583686> to appeal your ban.`)
+
+        user.roles.add(bannedRole)
+        .catch(() => {
+            message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
+            log.error('Bot has invalid permissions to add Verified role.', message)
+        });
+
+        message.channel.send({embeds: [bannedEmbed]})
+        log.log(`Successfully found banned user ${message.member.user.tag} as ${login}`, message)
+    }
+    
     user.setNickname(login).catch(error => {
         message.channel.send('Bot has invalid permissions to change nickname. Please allocate the proper permissions for the bot.')
         log.error('Bot has invalid permissions to change nickname.', message)
     })
-
-    message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
-    log.log(`Successfully verified user ${message.member.user.tag} as ${login}`, message)
 }
 
 const missingLogin = (message, command) => {
@@ -166,12 +172,25 @@ module.exports = {
 
             const discordTag = message.member.user.tag
 
+            //can be removed once remove eric remove this
+            if(json['icq'] === 'User has active ban'){
+                verifyUser(message, login, true)
+                return
+            }
+            //
+            
             if(json['icq'] !== discordTag){
                 missingDiscordTag(message, discordTag, json['icq'])
                 return
             }
 
-            verifyUser(message, login)
+            if(json['banned'] === '1'){
+                //banned
+                verifyUser(message, login, true)
+                return
+            }
+            //valid
+            verifyUser(message, login, false)
             
         })
         .catch(error => {
