@@ -1,4 +1,4 @@
-const serverLink = 'https://discord.com/invite/Bhe9rNz'
+const serverLink = 'https://discord.gg/dw32bAV9Eb'
 
 module.exports = {
     name: 'invite',

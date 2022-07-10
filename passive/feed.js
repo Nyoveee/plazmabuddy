@@ -48,10 +48,10 @@ const sendFeedEmbed = (client, color, imgLink, title, postLink, content, categor
     //     { name: 'Author', value: author},
     // )
     .setTimestamp()
-    .setAuthor(author, imgLink)
-    .setFooter('Consider supporting PB2 today!')
+    .setAuthor({name: author, iconURL: imgLink})
+    .setFooter({text: 'Support Eric at patreon today!\nhttps://www.patreon.com/Eric_Gurt'})
 
-    client.channels.cache.get(feedChannel).send(feedEmbed)
+    client.channels.cache.get(feedChannel).send({embeds: [feedEmbed]})
     .then(async m => {
         await m.react('✅')
         m.react('❌')

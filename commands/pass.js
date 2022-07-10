@@ -14,9 +14,9 @@ module.exports = {
         .addFields(
             {name: 'Ping a staff member for help if it doesn\'t work.', value: 'You need to have access to your email address you used to register with your account.\n\n**The staff team will never ask for your password.**'},
         )
-        .setFooter('Consider supporting PB2 today!')
+        .setFooter({text: 'Support Eric at patreon today!\nhttps://www.patreon.com/Eric_Gurt'})
         .setThumbnail('https://i.imgur.com/PBuRnNa.png')
 
-        message.channel.send(embed)
+        message.channel.send({embeds: [embed]})
     }
 }

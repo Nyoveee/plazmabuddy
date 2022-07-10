@@ -18,9 +18,9 @@ module.exports = {
             { name: 'Source code', value: 'https://github.com/Nyoveee/plazmabuddy'},
         )
         .setTimestamp()
-        .setFooter('Consider supporting PB2 today!')
+        .setFooter({text: 'Support Eric at patreon today!\nhttps://www.patreon.com/Eric_Gurt'})
         .setThumbnail('https://i.imgur.com/PBuRnNa.png')
 
-        message.channel.send(helpEmbed)
+        message.channel.send({embeds: [helpEmbed]})
     }
 }

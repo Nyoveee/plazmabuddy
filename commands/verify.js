@@ -66,7 +66,7 @@ const missingLogin = (message, command) => {
     .setDescription(`Please include login after the command.\nExample: \`!${command} Your Login Here\`\n\nYou can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8.`)
     .setImage('https://i.imgur.com/gPJgTt8.png')
 
-    message.channel.send(missingLoginEmbed)
+    message.channel.send({embeds: [missingLoginEmbed]})
 }
 
 const invalidLogin = (message, command) => {
@@ -76,7 +76,7 @@ const invalidLogin = (message, command) => {
     .setDescription(`You can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8. \n\nExample: \`!${command} Your Login Here\``)
     .setImage('https://i.imgur.com/gPJgTt8.png')
       
-    message.channel.send(invalidLoginEmbed)
+    message.channel.send({embeds: [invalidLoginEmbed]})
 }
 
 const missingDiscordTag = (message, discordTag, profileTag) => {
@@ -103,7 +103,7 @@ const missingDiscordTag = (message, discordTag, profileTag) => {
     )
     .setImage('https://i.imgur.com/AJ0CRZ1.png')
 
-    message.channel.send(missingTagEmbed)
+    message.channel.send({embeds: [missingTagEmbed]})
 }
 
 const failedReq = (message) => {
@@ -117,7 +117,7 @@ const failedReq = (message) => {
         { name: 'LDR', value: '=> 7.5 LDR', inline: true },
     )
 
-    message.channel.send(veriDenyEmbed)
+    message.channel.send({embeds: [veriDenyEmbed]})
 }
 
 module.exports = {

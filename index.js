@@ -3,10 +3,13 @@ require('console-stamp')(console, {
     format: ':date(yyyy/mm/dd HH:MM:ss) :label' 
 });
 
-const Discord = require('discord.js')
-const client = new Discord.Client()
+//discordv13 requires intent
+const { Client, Intents, Collection } = require('discord.js');
+const allIntents = new Intents(32767);
+const client = new Client(({ intents: allIntents }))
+
 const fs = require('fs');
-client.commands = new Discord.Collection()
+client.commands = new Collection()
 const cron = require('node-cron');
 const log = require('./lib/log.js')
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
@@ -44,7 +47,7 @@ client.on('error', (err) => {
     log.error(`Failed to start bot. Error:\n${err}`)
 })
 
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
     if(message.author.bot){
         return
     }
