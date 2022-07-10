@@ -37,21 +37,23 @@ const emojiMap = {
 }
 
 const sendFeedEmbed = (client, color, imgLink, title, postLink, content, category, author) => {
+    const file = new Discord.MessageAttachment(`./images/${imgLink}`)
+
     const feedEmbed = new Discord.MessageEmbed()
     .setTitle(`${category} • ${title}`)
     .setColor(color)
     .setURL(postLink)
     .setDescription(`${content}`)
-    .setThumbnail(imgLink)
+    .setThumbnail(`attachment://${imgLink}`)
     // .addFields(
     //     { name: 'Category', value: category },
     //     { name: 'Author', value: author},
     // )
     .setTimestamp()
-    .setAuthor({name: author, iconURL: imgLink})
+    .setAuthor({name: author, iconURL: `attachment://${imgLink}`})
     .setFooter({text: process.env.embedFooter})
 
-    client.channels.cache.get(feedChannel).send({embeds: [feedEmbed]})
+    client.channels.cache.get(feedChannel).send({embeds: [feedEmbed], files: [file] })
     .then(async m => {
         await m.react('✅')
         m.react('❌')
@@ -160,21 +162,8 @@ module.exports = {
                         color = "#33aaff"
                     }
 
-                    let imgLink = ''
-                    intMdl = parseInt(json.mdl)
                     json.mdl = json.mdl.padStart(4, '0')
-
-                    if (intMdl >= 41 && intMdl <= 49) {
-                        stringMdl = (intMdl - 40).toString()
-                        stringMdl = stringMdl.padStart(4, '0')
-                        imgLink = `http://mcshroom.com/pb2characters/pb2characters/chars_hero${stringMdl}.jpg`;
-                    } 
-                    else if (intMdl === 61) {
-                        imgLink = "http://mcshroom.com/pb2characters/pb2characters/chars_proxy.jpg";
-                    } 
-                    else {
-                        imgLink = `http://mcshroom.com/pb2characters/pb2characters/chars${json.mdl}.jpg`;
-                    }
+                    let imgLink = `${json.mdl}.png`;
 
                     sendFeedEmbed(client, color, imgLink, title, postLink, content, category, author)
                 })
