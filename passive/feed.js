@@ -18,6 +18,8 @@ const contentRegexFilter = /((?:.|\s)+)<p>Statistics: Posted by <a/
 const emojiRegexFilter = /<img src="http:\/\/www\.plazmaburst2\.com\/forum\/images\/smilies\/kolobok\/(.+?)" alt=".+?" title=".+?" \/>/g
 const bbcodeFilter = /\<\/?(?:strong|!-- m --|a|code|dd|dl(?: class="codebox")?|dt|div|span(?: style=".*?")?)\>/g
 const imgRegex = /<a class="postlink" href=".+?" >/g
+const maskedLink = /<a\s?(?:class="postlink")?\s?href="(.+?)"\s+>?(?:class="postlink">)?(.+?)<\/a>/g
+const localLink = /<!-- l --><a class="postlink-local" href="(.+?)"\s+>(?:.+)?<\/a><!-- l -->/g
 
 //const testString = "Nyove wrote: \nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
 
@@ -127,14 +129,35 @@ module.exports = {
                     }
                 }
 
-                //4. Remove all BBcode tags styling.
+                //4. Masked link
+                listOfLinks = Array.from(content.matchAll(maskedLink))
+
+                for(let linkCaptureGroup of listOfLinks){
+                    let mask = linkCaptureGroup[2]
+                    let url = linkCaptureGroup[1]
+
+                    if(mask.includes('www.') || mask.includes('https://')){
+                        content = content.replace(linkCaptureGroup[0], url)
+                    }
+
+                    content = content.replace(linkCaptureGroup[0],`[${mask}](${url})`)
+                }
+
+                //4.5 Local links
+                listOfLinks = Array.from(content.matchAll(localLink))
+
+                for(let linkCaptureGroup of listOfLinks){
+                    content = content.replace(linkCaptureGroup[0],linkCaptureGroup[1])
+                }
+
+                //5. Remove all BBcode tags styling.
                 content = content.replace(bbcodeFilter, '')
                 content = content.replace(imgRegex, '')
                 
-                //5. Style quotes
+                //6. Style quotes
                 content = quoteFac.styleQuote(content)
 
-                //6. Change HTML entities like < > to their respective characters. (Safe to assume that discord embeds are safe from XSS vulnerability, right?)
+                //7. Change HTML entities like < > to their respective characters. (Safe to assume that discord embeds are safe from XSS vulnerability, right?)
                 content = he.decode(content)                
 
                 //This part shouldn't run, but as a failsafe if content after styling quote is still > 2048.
