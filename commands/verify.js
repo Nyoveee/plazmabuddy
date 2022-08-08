@@ -8,6 +8,7 @@ const log = require('../lib/log.js')
 
 //isBanned is boolean
 const verifyUser = (message, login, isBanned) => {
+    
     //If discord tag is the same as login, add a . for nickname.
     if(message.author.username === login){
         login += '.'
@@ -17,13 +18,13 @@ const verifyUser = (message, login, isBanned) => {
 
     //Add Verified Role, Remove New User Role.
     //-----
-    const newUserRole = message.guild.roles.cache.find(role => role.name === 'New User');
-    const verifiedRole = message.guild.roles.cache.find(role => role.name === 'Verified');
-    const bannedRole = message.guild.roles.cache.find(role => role.name === 'Banned');
+    const newUserRole = message.guild.roles.cache.get(process.env.newUserID);
+    const verifiedRole = message.guild.roles.cache.get(process.env.verifiedID);
+    const bannedRole = message.guild.roles.cache.get(process.env.bannedRoleID);
 
     if(newUserRole === undefined || verifiedRole === undefined || bannedRole === undefined){
         message.channel.send('Failed to retrieve role names. Verification process halted.')
-        log.error('Failed to retrieve role names during verification process. Role names may have changed?', message)
+        log.error('Failed to retrieve role during verification process. Role may have been deleted?', message)
         return
     }
 
