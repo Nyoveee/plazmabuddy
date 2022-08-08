@@ -15,7 +15,7 @@ const log = require('./lib/log.js')
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 const poll = require('./passive/poll.js')
 const feed = require('./passive/feed.js');
-//const supportFeed = require('./passive/supportFeed.js');
+const supportFeed = require('./passive/supportFeed.js');
 
 if(!fs.existsSync('./.env')){
     console.error('Missing env file at root of directory. Bot is unable to run.')
@@ -24,6 +24,7 @@ if(!fs.existsSync('./.env')){
 
 cron.schedule('*/5 * * * * *', () => {
     feed.execute(client)
+    //supportFeed.execute(client)
 });
 
 for (const file of commandFiles) {
@@ -46,65 +47,71 @@ client.on('error', (err) => {
 })
 
 client.on('messageCreate', (message) => {
-    if(message.author.bot){
-        return
-    }
-
-    if(message.channel.id === process.env.pollChannel){
-        poll.execute(message)
-        return
-    }
-
-    if(!message.content.startsWith(prefix)){
-        return
-    }
-
-    // .slice(prefix.length) is to disregard the prefix portion of the code.
-    // .split takes in a regular expression, where it splits the String when there is a space. It returns an array of arguments.
-    const args = message.content.slice(prefix.length).split(/ +/)
+    try{
+        if(message.author.bot){
+            return
+        }
     
-    //Get the first element of the array, in lowercase. The resulting array's first element is now removed.
-    const command = args.shift().toLowerCase()
-
-    //List of commands.
-    switch(command){
-        case 'ping':
-            client.commands.get('ping').execute(message, client);
-            break
-
-        case 'l':
-            client.commands.get('verify').execute(message, args, 'l');
-            break
-
-        case 'link':
-            client.commands.get('verify').execute(message, args, 'link');
-            break
-
-        case 'help':
-            client.commands.get('help').execute(message);
-            break
-
-        case 'general':
-            client.commands.get('general').execute(message);
-            break
-
-        case 'pass':
-            client.commands.get('pass').execute(message);
-            break
-
-        case 'password':
-            client.commands.get('pass').execute(message);
-            break
-
-        case 'invite':
-            client.commands.get('invite').execute(message);
-            break
-
-        default:
-            //message.channel.send("Invalid command! Do `!help` for a list of commands.")
-            break
-
+        if(message.channel.id === process.env.pollChannel){
+            poll.execute(message)
+            return
+        }
+    
+        if(!message.content.startsWith(prefix)){
+            return
+        }
+    
+        // .slice(prefix.length) is to disregard the prefix portion of the code.
+        // .split takes in a regular expression, where it splits the String when there is a space. It returns an array of arguments.
+        const args = message.content.slice(prefix.length).split(/ +/)
+        
+        //Get the first element of the array, in lowercase. The resulting array's first element is now removed.
+        const command = args.shift().toLowerCase()
+    
+        //List of commands.
+        switch(command){
+            case 'ping':
+                client.commands.get('ping').execute(message, client);
+                break
+    
+            case 'l':
+                client.commands.get('verify').execute(message, args, 'l');
+                break
+    
+            case 'link':
+                client.commands.get('verify').execute(message, args, 'link');
+                break
+    
+            case 'help':
+                client.commands.get('help').execute(message);
+                break
+    
+            case 'general':
+                client.commands.get('general').execute(message);
+                break
+    
+            case 'pass':
+                client.commands.get('pass').execute(message);
+                break
+    
+            case 'password':
+                client.commands.get('pass').execute(message);
+                break
+    
+            case 'invite':
+                client.commands.get('invite').execute(message);
+                break
+    
+            default:
+                //message.channel.send("Invalid command! Do `!help` for a list of commands.")
+                break
+    
+        }
     }
+    catch(error){
+        log.error(`Error occured while executing command.\n${error}`)
+    }
+    
 })
 
 //Keep it last line.

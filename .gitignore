@@ -2,6 +2,8 @@ lib/emoji.js
 lib/test.js
 temp.js
 
+passive/supportFeed.js
+
 node_modules
 
 .env
