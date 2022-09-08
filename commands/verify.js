@@ -3,12 +3,13 @@ require('dotenv').config()
 const Discord = require('discord.js')
 const fetch = require('node-fetch');
 const apiKey = process.env.API_KEY
-const verifyChannel = process.env.verifyChannel
+const verifyChannelMain = process.env.verifyChannel
+const verifyChannelMap = process.env.verifyChannel2
 const log = require('../lib/log.js')
 
 //isBanned is boolean
-const verifyUser = (message, login, isBanned) => {
-    
+//serverRole is an object containing the 3 server roles
+const verifyUser = async (message, login, isBanned, serverRole) => {
     //If discord tag is the same as login, add a . for nickname.
     if(message.author.username === login){
         login += '.'
@@ -16,18 +17,24 @@ const verifyUser = (message, login, isBanned) => {
 
     let user = message.member
 
-    //Add Verified Role, Remove New User Role.
-    //-----
-    const newUserRole = message.guild.roles.cache.get(process.env.newUserID);
-    const verifiedRole = message.guild.roles.cache.get(process.env.verifiedID);
-    const bannedRole = message.guild.roles.cache.get(process.env.bannedRoleID);
+    let newUserRole = await message.guild.roles.fetch(serverRole.newUserRole)
+    let verifiedRole = await message.guild.roles.fetch(serverRole.verifiedRole)
 
-    if(newUserRole === undefined || verifiedRole === undefined || bannedRole === undefined){
-        message.channel.send('Failed to retrieve role names. Verification process halted.')
-        log.error('Failed to retrieve role during verification process. Role may have been deleted?', message)
+    //Map server does not have ban role.
+    let bannedRole = undefined
+    if(serverRole.bannedRole !== undefined){
+        bannedRole = await message.guild.roles.fetch(serverRole.bannedRole)
+    }
+
+    //Ensure roles are properly retrieved.
+    if(newUserRole == null || verifiedRole == null){
+        message.channel.send('Failed to retrieve roles. Verification process halted.')
+        log.error(`Failed to retrieve role during verification process. Role may have been deleted?\nNew User: ${newUserRole}\nVerified: ${verifiedRole}`, message)
         return
     }
 
+    //check if banned
+    //not banned, verify accordingly.
     if(!isBanned){
         user.roles.add(verifiedRole)
         .catch(() => {
@@ -44,17 +51,27 @@ const verifyUser = (message, login, isBanned) => {
         message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
         log.log(`Successfully verified user ${message.member.user.tag} as ${login}`, message)
     }
+    //is banned
     else{
         const bannedEmbed = new Discord.MessageEmbed()
         .setTitle('Verification Denied')
         .setColor(process.env.embedColor)
-        .setDescription(`Your verification has been denied since \`${login}\` is currently banned on the website.\nKindly create a ticket on <#995018165593583686> to appeal your ban.`)
+        
+        //check if bannedRole is null or undefined (maps server does not have bannedRole)
+        if(bannedRole !== undefined)
+        {
+            user.roles.add(bannedRole)
+            .catch(() => {
+                message.channel.send('Bot has invalid permissions to add banned role. Please allocate the proper permissions for the bot.')
+                log.error('Bot has invalid permissions to add Banned role.', message)
+            });
 
-        user.roles.add(bannedRole)
-        .catch(() => {
-            message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
-            log.error('Bot has invalid permissions to add Verified role.', message)
-        });
+            bannedEmbed.setDescription(`Your verification has been denied since \`${login}\` is currently banned on the website.\nKindly create a ticket on <#995018165593583686> to appeal your ban.`)
+        }
+        else{
+            log.log("No banned role in server.")
+            bannedEmbed.setDescription(`Your verification has been denied since \`${login}\` is currently banned on the website. Contact a moderator for further assistance.`)
+        }
 
         message.channel.send({embeds: [bannedEmbed]})
         log.log(`Successfully found banned user ${message.member.user.tag} as ${login}`, message)
@@ -132,11 +149,32 @@ module.exports = {
     description: 'Process of verifying user.',
     //Entry point
     execute: (message, args, command) => {
-        if(message.channel.id !== verifyChannel){
-            return
+        let serverRole = {
+            'newUserRole' : undefined,
+            'verifiedRole' : undefined,
+            'bannedRole' : undefined,
         }
 
-        //Missing argument event
+        //which channel (hence server) does the message come from?
+        switch(message.channel.id){
+            //main PBD server
+            case verifyChannelMain:
+                serverRole.newUserRole = process.env.newUserID
+                serverRole.verifiedRole = process.env.verifiedID
+                serverRole.bannedRole = process.env.bannedRoleID
+                break
+            //maps server
+            case verifyChannelMap:
+                serverRole.newUserRole = process.env.newUserID2
+                serverRole.verifiedRole = process.env.verifiedID2
+                //no banned role
+                break
+            //message does not belong to any verification channels
+            default:
+                return
+        }
+
+        //Missing argument event, not login not provided
         if(args.length === 0){
             missingLogin(message, command)
             return
@@ -172,13 +210,6 @@ module.exports = {
             }
 
             const discordTag = message.member.user.tag
-
-            //can be removed once remove eric remove this
-            if(json['icq'] === 'User has active ban'){
-                verifyUser(message, login, true)
-                return
-            }
-            //
             
             if(json['icq'] !== discordTag){
                 missingDiscordTag(message, discordTag, json['icq'])
@@ -187,11 +218,11 @@ module.exports = {
 
             if(json['banned'] === '1'){
                 //banned
-                verifyUser(message, login, true)
+                verifyUser(message, login, true, serverRole)
                 return
             }
             //valid
-            verifyUser(message, login, false)
+            verifyUser(message, login, false, serverRole)
             
         })
         .catch(error => {
