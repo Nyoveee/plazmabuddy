@@ -49,7 +49,7 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
         });
 
         message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
-        log.log(`Successfully verified user ${message.member.user.tag} as ${login}`, message)
+        log.log(`Successfully verified user ${message.member.user.tag} as ${login} in ${message.guild.name}`, message)
     }
     //is banned
     else{
@@ -74,12 +74,12 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
         }
 
         message.channel.send({embeds: [bannedEmbed]})
-        log.log(`Successfully found banned user ${message.member.user.tag} as ${login}`, message)
+        log.log(`Successfully found banned user ${message.member.user.tag} as ${login} in ${message.guild.name}`, message)
     }
     
     user.setNickname(login).catch(error => {
         message.channel.send('Bot has invalid permissions to change nickname. Please allocate the proper permissions for the bot.')
-        log.error('Bot has invalid permissions to change nickname.', message)
+        log.error(`Bot has invalid permissions to change nickname.\n${error}`, message)
     })
 }
 
