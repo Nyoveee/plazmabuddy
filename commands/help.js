@@ -22,6 +22,7 @@ module.exports = {
         .setFooter({text: process.env.embedFooter})
         .setThumbnail('https://i.imgur.com/rCvjGc2.png')
 
-        message.channel.send({embeds: [helpEmbed]})
+        message.channel.send({embeds: [helpEmbed]}).catch(err => console.error(err))
+        .catch( function(err){console.error(`Error sending message at ${this.name}.js file.\n${err}`)})
     }
 }

@@ -17,6 +17,7 @@ module.exports = {
 
         const randomIndex = Math.floor(Math.random() * memoryList.length)
         message.channel.send(memoryList[randomIndex])
+        .catch( function(err){console.error(`Error sending message at ${this.name}.js file.\n${err}`)})
 
         memoryList.splice(randomIndex,1)
     }

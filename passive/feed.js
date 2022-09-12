@@ -60,6 +60,7 @@ const sendFeedEmbed = (client, color, imgLink, title, postLink, content, categor
         await m.react('✅')
         m.react('❌')
     })
+    .catch( function(err){console.error(`Error sending message at feed.js file.\n${err}`)})
 }
 
 module.exports = {

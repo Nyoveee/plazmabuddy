@@ -19,5 +19,6 @@ module.exports = {
         .setThumbnail('https://i.imgur.com/PBuRnNa.png')
 
         message.channel.send({embeds: [embed]})
+        .catch( function(err){console.error(`Error sending message at ${this.name}.js file.\n${err}`)})
     }
 }

@@ -28,7 +28,7 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
 
     //Ensure roles are properly retrieved.
     if(newUserRole == null || verifiedRole == null){
-        message.channel.send('Failed to retrieve roles. Verification process halted.')
+        message.channel.send('Failed to retrieve roles. Verification process halted.').catch( (err) => console.error(err) )
         log.error(`Failed to retrieve role during verification process. Role may have been deleted?\nNew User: ${newUserRole}\nVerified: ${verifiedRole}`, message)
         return
     }
@@ -38,17 +38,17 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
     if(!isBanned){
         user.roles.add(verifiedRole)
         .catch(() => {
-            message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.')
+            message.channel.send('Bot has invalid permissions to add Verified role. Please allocate the proper permissions for the bot.').catch( (err) => console.error(err) )
             log.error('Bot has invalid permissions to add Verified role.', message)
         });
 
         user.roles.remove(newUserRole)
         .catch(() => {
-            message.channel.send('Bot has invalid permissions to remove New User role. Please allocate the proper permissions for the bot.')
+            message.channel.send('Bot has invalid permissions to remove New User role. Please allocate the proper permissions for the bot.').catch( (err) => console.error(err) )
             log.error('Bot has invalid permissions to add New User role.', message)
         });
 
-        message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`)
+        message.channel.send(`Congratulations! You've been verified as \`${login}\`! You now have access to some new features.`).catch( (err) => console.error(err) )
         log.log(`Successfully verified user ${message.member.user.tag} as ${login} in ${message.guild.name}`, message)
     }
     //is banned
@@ -62,7 +62,7 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
         {
             user.roles.add(bannedRole)
             .catch(() => {
-                message.channel.send('Bot has invalid permissions to add banned role. Please allocate the proper permissions for the bot.')
+                message.channel.send('Bot has invalid permissions to add banned role. Please allocate the proper permissions for the bot.').catch( (err) => console.error(err) )
                 log.error('Bot has invalid permissions to add Banned role.', message)
             });
 
@@ -73,12 +73,12 @@ const verifyUser = async (message, login, isBanned, serverRole) => {
             bannedEmbed.setDescription(`Your verification has been denied since \`${login}\` is currently banned on the website. Contact a moderator for further assistance.`)
         }
 
-        message.channel.send({embeds: [bannedEmbed]})
+        message.channel.send({embeds: [bannedEmbed]}).catch( (err) => console.error(err) )
         log.log(`Successfully found banned user ${message.member.user.tag} as ${login} in ${message.guild.name}`, message)
     }
     
     user.setNickname(login).catch(error => {
-        message.channel.send('Bot has invalid permissions to change nickname. Please allocate the proper permissions for the bot.')
+        message.channel.send('Bot has invalid permissions to change nickname. Please allocate the proper permissions for the bot.').catch( (err) => console.error(err) )
         log.error(`Bot has invalid permissions to change nickname.\n${error}`, message)
     })
 }
@@ -90,7 +90,7 @@ const missingLogin = (message, command) => {
     .setDescription(`Please include login after the command.\nExample: \`!${command} Your Login Here\`\n\nYou can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8.`)
     .setImage('https://i.imgur.com/gPJgTt8.png')
 
-    message.channel.send({embeds: [missingLoginEmbed]})
+    message.channel.send({embeds: [missingLoginEmbed]}).catch( (err) => console.error(err) )
 }
 
 const invalidLogin = (message, command) => {
@@ -100,7 +100,7 @@ const invalidLogin = (message, command) => {
     .setDescription(`You can find out what is your login here: https://www.plazmaburst2.com/?a=&s=8. \n\nExample: \`!${command} Your Login Here\``)
     .setImage('https://i.imgur.com/gPJgTt8.png')
       
-    message.channel.send({embeds: [invalidLoginEmbed]})
+    message.channel.send({embeds: [invalidLoginEmbed]}).catch( (err) => console.error(err) )
 }
 
 const missingDiscordTag = (message, discordTag, profileTag) => {
@@ -127,7 +127,7 @@ const missingDiscordTag = (message, discordTag, profileTag) => {
     )
     .setImage('https://i.imgur.com/AJ0CRZ1.png')
 
-    message.channel.send({embeds: [missingTagEmbed]})
+    message.channel.send({embeds: [missingTagEmbed]}).catch( (err) => console.error(err) )
 }
 
 const failedReq = (message) => {
@@ -141,7 +141,7 @@ const failedReq = (message) => {
         { name: 'LDR', value: '=> 7.5 LDR', inline: true },
     )
 
-    message.channel.send({embeds: [veriDenyEmbed]})
+    message.channel.send({embeds: [veriDenyEmbed]}).catch( (err) => console.error(err) )
 }
 
 module.exports = {
