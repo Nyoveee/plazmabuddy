@@ -12,3 +12,7 @@ todo.txt
 npm-debug.log
 .DS_Store
 /*.env
+
+sCommands
+registerSlashCommand.js
+deleteSlashCommand.ks
