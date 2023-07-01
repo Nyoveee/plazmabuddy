@@ -204,12 +204,18 @@ module.exports = {
             
             const accountDayAge = Math.floor(accountAge / 86400)
 
-            if(json['s_kills'] < 100 && json['dev_rank'] < 7.5 && accountDayAge < 14){
+            if(json['s_kills'] < 200 && json['dev_rank'] < 7.5 && accountDayAge < 14){
                 failedReq(message)
                 return
             }
 
-            const discordTag = message.member.user.tag
+            let discordTag = message.member.user.tag
+
+            //with the introduction of the new discord username system, we need to test whether the discord tag is new or old
+            //new discord tag always ends with #0, hence we just need to remove the discriminator.
+            if(discordTag.endsWith('#0')){
+                discordTag = discordTag.slice(0, discordTag.length - 2)
+            }
             
             if(json['icq'] !== discordTag){
                 missingDiscordTag(message, discordTag, json['icq'])

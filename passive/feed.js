@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const fetch = require('node-fetch');
 const RSS_URL = 'https://www.plazmaburst2.com/forum/feed.php';
-//const RSS_URL = ' www.google.com:81'
 const feedChannel = process.env.feedChannel
 const Discord = require('discord.js')
 const apiKey = process.env.API_KEY
@@ -69,9 +68,15 @@ module.exports = {
         fetch(RSS_URL)
         .then(response => response.text())
         .then(xml => {
+            //Empty messages are single space after .text(). Bug occurs when URL was accidentally modified.
+            if(xml === " "){
+                log.error(`Empty response from PB2 API. Perhaps URL got changed?\n${RSS_URL}`, client)
+                return
+            }
+
             parseString(xml, (err, result) => {
                 if(err){
-                    log.error("Error parsing feeds into an xml.", client)
+                    log.error(`Error parsing feeds into an xml.\n${err}`, client)
                     return
                 }
 

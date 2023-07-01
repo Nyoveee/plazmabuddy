@@ -8,13 +8,19 @@ const { Client, Intents, Collection } = require('discord.js');
 const allIntents = new Intents(32767);
 const client = new Client(({ intents: allIntents }))
 
+//importing modules
 const fs = require('fs');
-client.commands = new Collection()
 const cron = require('node-cron');
 const log = require('./lib/log.js')
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 const poll = require('./passive/poll.js')
 const feed = require('./passive/feed.js');
+
+//--------------------------------------------------------
+//LEGACY PREFIX COMMANDS LOGIC
+client.commands = new Collection()
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+
+const prefix = '!'
 
 if(!fs.existsSync('./.env')){
     console.error('Missing env file at root of directory. Bot is unable to run.')
@@ -33,8 +39,6 @@ for (const file of commandFiles) {
 	// with the key as the command name and the value as the exported module
 	client.commands.set(command.name, command);
 }
-
-const prefix = '!'
 
 client.once('ready', () => {
     log.log('Bot is now running.', client)
@@ -111,6 +115,40 @@ client.on('messageCreate', (message) => {
     }
     
 })
+//END OF LEGACY PREFIX COMMANDS LOGIC
+//--------------------------------------------------------
 
+//--------------------------------------------------------
+//SLASH COMMANDS LOGIC
+client.sCommands = new Collection()
+const sCommandFiles = fs.readdirSync('./sCommands').filter(file => file.endsWith('.js'))
+
+for (const file of sCommandFiles){
+    const command = require(`./sCommands/${file}`);
+    client.sCommands.set(command.data.name, command)
+    //console.log(client.sCommands)
+}
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return
+
+    //command executing
+    const command = client.sCommands.get(interaction.commandName);
+
+    if (!command) {
+        console.error(`Missing command file based on command name: ${interaction.commandName}.`)
+        return
+    }
+
+    try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
+})
+
+//END OF SLASH COMMANDS LOGIC
+//--------------------------------------------------------
 //Keep it last line.
 client.login(process.env.CLIENT_TOKEN)
