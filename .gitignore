@@ -15,4 +15,4 @@ npm-debug.log
 
 sCommands
 registerSlashCommand.js
-deleteSlashCommand.ks
+deleteSlashCommand.js
