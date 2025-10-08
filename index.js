@@ -14,6 +14,7 @@ const cron = require('node-cron');
 const log = require('./lib/log.js')
 const poll = require('./passive/poll.js')
 const feed = require('./passive/feed.js');
+const pb3Prompt = require('./passive/pb3.js');
 
 //--------------------------------------------------------
 //LEGACY PREFIX COMMANDS LOGIC
@@ -49,6 +50,8 @@ client.on('error', (err) => {
     log.error(`Failed to start bot. Error:\n${err}`)
 })
 
+let toAutoPrompt = true
+
 client.on('messageCreate', (message) => {
     try{
         if(message.author.bot){
@@ -60,10 +63,15 @@ client.on('messageCreate', (message) => {
             return
         }
     
+        // Automatic prompt when someone ask where's PB3?
+        if(toAutoPrompt) {
+            pb3Prompt.execute(message)
+        }
+
         if(!message.content.startsWith(prefix)){
             return
         }
-    
+
         // .slice(prefix.length) is to disregard the prefix portion of the code.
         // .split takes in a regular expression, where it splits the String when there is a space. It returns an array of arguments.
         const args = message.content.slice(prefix.length).split(/ +/)
@@ -105,6 +113,29 @@ client.on('messageCreate', (message) => {
                 client.commands.get('invite').execute(message);
                 break
     
+            case 'patreon':
+                client.commands.get('patreon').execute(message);
+                break
+
+            case 'prompt':
+                if(args.length === 0){
+                    message.channel.send(`PB3's auto prompt is ${toAutoPrompt ? "on" : "off"}. Type \`!prompt on\` to turn on PB3 auto prompt, or \`!prompt off\` to it off instead.`)
+                    break
+                }
+
+                if(args[0] == "on") {
+                    toAutoPrompt = true;
+                    message.channel.send("PB3 auto prompt is now turned on.");
+                }
+                else if(args[0] == "off") {
+                    toAutoPrompt = false;
+                    message.channel.send("PB3 auto prompt is now turned off.");
+                }
+                else {
+                    message.channel.send("Invalid argument. Provide `on` or `off` as arguments instead.");
+                }
+
+            break
             default:
                 break
     
@@ -120,33 +151,33 @@ client.on('messageCreate', (message) => {
 
 //--------------------------------------------------------
 //SLASH COMMANDS LOGIC
-client.sCommands = new Collection()
-const sCommandFiles = fs.readdirSync('./sCommands').filter(file => file.endsWith('.js'))
+// client.sCommands = new Collection()
+// const sCommandFiles = fs.readdirSync('./sCommands').filter(file => file.endsWith('.js'))
 
-for (const file of sCommandFiles){
-    const command = require(`./sCommands/${file}`);
-    client.sCommands.set(command.data.name, command)
-    //console.log(client.sCommands)
-}
+// for (const file of sCommandFiles){
+//     const command = require(`./sCommands/${file}`);
+//     client.sCommands.set(command.data.name, command)
+//     //console.log(client.sCommands)
+// }
 
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return
+// client.on('interactionCreate', async (interaction) => {
+//     if (!interaction.isCommand()) return
 
-    //command executing
-    const command = client.sCommands.get(interaction.commandName);
+//     //command executing
+//     const command = client.sCommands.get(interaction.commandName);
 
-    if (!command) {
-        console.error(`Missing command file based on command name: ${interaction.commandName}.`)
-        return
-    }
+//     if (!command) {
+//         console.error(`Missing command file based on command name: ${interaction.commandName}.`)
+//         return
+//     }
 
-    try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	}
-})
+//     try {
+// 		await command.execute(interaction);
+// 	} catch (error) {
+// 		console.error(error);
+// 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+// 	}
+// })
 
 //END OF SLASH COMMANDS LOGIC
 //--------------------------------------------------------

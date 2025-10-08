@@ -6,3 +6,12 @@ PlazmaBuddy is a Discord bot that helps to facilitate the verification process i
 - Displays new forum feeds in #feeds
 - Automatically react emojis in #community-polls
 - And other features! Do `!help` for a full list of command.
+
+# Project setup
+1. You will need .env at the root directory, containing
+CLIENT_TOKEN= <...> # Bot token
+logChannelID= <...> # Log Channel ID.
+
+2. `npm i` to download dependencies.
+
+3. `node .` to start up bot.

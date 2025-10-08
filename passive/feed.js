@@ -76,7 +76,7 @@ module.exports = {
 
             parseString(xml, (err, result) => {
                 if(err){
-                    log.error(`Error parsing feeds into an xml.\n${err}`, client)
+                    // log.error(`Error parsing feeds into an xml.\n${err}`, client)
                     return
                 }
 
